@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Ignore VS Code settings
+.vscode/
+.vscode/launch.json
+.vscode/tasks.json
+
+# Ignore temporary code runner files
+tempCodeRunnerFile.cpp
