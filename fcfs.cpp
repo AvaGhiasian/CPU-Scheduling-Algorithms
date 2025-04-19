@@ -14,6 +14,7 @@ struct Process
     int waitingTime;
     int responseTime;
     int startTime;
+    int turnAroundTime; // completion time - arrival time
 };
 
 void firstComeFirstServed(vector<Process> &processes)
@@ -31,17 +32,21 @@ void firstComeFirstServed(vector<Process> &processes)
         processes[i].responseTime = currentTime - processes[i].arrivalTime;
         processes[i].waitingTime = currentTime - processes[i].arrivalTime;
 
+        int completionTime = processes[i].startTime + processes[i].burstTime;
+        processes[i].turnAroundTime = completionTime - processes[i].arrivalTime;
+
         currentTime += processes[i].burstTime;
         totalWaitingTime += processes[i].waitingTime;
         totalResponseTime += processes[i].responseTime;
     }
 
     cout << "\n------ FIFO Scheduling ------\n";
-    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse" << endl;
+    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround" << endl;
 
     for (const auto &p : processes)
     {
-        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\n";
+        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << 
+        "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
     }
 
     cout << endl;
