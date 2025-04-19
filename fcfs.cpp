@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 
+// اگع زمان ورود صفر نباشه اشتباه میشه درست کن اینو
+
 using namespace std;
 
 struct Process
@@ -21,6 +23,10 @@ void firstComeFirstServed(vector<Process> &processes)
 
     for (int i = 0; i < processes.size(); i++)
     {
+        if (currentTime < processes[i].arrivalTime)
+        {
+            currentTime = processes[i].arrivalTime;
+        }
         processes[i].startTime = currentTime;
         processes[i].responseTime = currentTime - processes[i].arrivalTime;
         processes[i].waitingTime = currentTime - processes[i].arrivalTime;
@@ -30,13 +36,12 @@ void firstComeFirstServed(vector<Process> &processes)
         totalResponseTime += processes[i].responseTime;
     }
 
-    cout << "--- FIFO Scheduling ---" << endl;
-    cout << "Process |\tWaiting |\tResponse" << endl;
-    cout << "----------------------------------------" << endl;
+    cout << "\n------ FIFO Scheduling ------\n";
+    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse" << endl;
 
     for (const auto &p : processes)
     {
-        cout << p.name << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\n";
+        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\n";
     }
 
     cout << endl;
