@@ -2,8 +2,6 @@
 #include <vector>
 #include <string>
 
-// اگع زمان ورود صفر نباشه اشتباه میشه درست کن اینو
-
 using namespace std;
 
 struct Process
