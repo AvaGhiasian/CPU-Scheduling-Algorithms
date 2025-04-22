@@ -15,11 +15,11 @@ struct Process
     bool isCompleted = false;
 };
 
-void shortestProcessNext(vector<Process>& processes)
+void shortestJobFirst(vector<Process>& processes)
 {
     int currentTime = 0;
     int completed = 0;
-    float totalWaitingTime = 0, totalResponseTime = 0;
+    float totalWaitingTime = 0, totalResponseTime = 0, totalTurnAroundTime = 0;
 
     while (completed < processes.size())
     {
@@ -55,18 +55,23 @@ void shortestProcessNext(vector<Process>& processes)
             
             totalWaitingTime += p.waitingTime;
             totalResponseTime += p.responseTime;
+            totalTurnAroundTime += p.turnAroundTime;
         }
         else
             currentTime++; // CPU idle
     }
 
-    cout << "\n------ SPN (Non-Preemptive) Scheduling ------\n";
+    cout << "\n------ SJF (Non-Preemptive) Scheduling ------\n";
     cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround\n";
     for (const auto &p : processes)
     {
         cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << 
         "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
     }
+
+    cout << "Average Waiting Time: " << totalWaitingTime / processes.size() << "\n";
+    cout << "Average Response Time: " << totalResponseTime / processes.size() << "\n";
+    cout << "Average Turn Around Time: " << totalTurnAroundTime / processes.size() << "\n";
 }
 
 int main()
@@ -95,7 +100,7 @@ int main()
         processes.push_back(p);
     }
 
-    shortestProcessNext(processes);
+    shortestJobFirst(processes);
 
     return 0;
 }
