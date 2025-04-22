@@ -12,13 +12,14 @@ struct Process
     int waitingTime;
     int responseTime;
     int startTime;
+    int completionTime;
     int turnAroundTime; // completion time - arrival time
 };
 
 void firstComeFirstServed(vector<Process> &processes)
 {
     int currentTime = 0;
-    float totalWaitingTime = 0, totalResponseTime = 0;
+    float totalWaitingTime = 0, totalResponseTime = 0, totalTurnAroundTime = 0;
 
     for (int i = 0; i < processes.size(); i++)
     {
@@ -30,12 +31,13 @@ void firstComeFirstServed(vector<Process> &processes)
         processes[i].responseTime = currentTime - processes[i].arrivalTime;
         processes[i].waitingTime = currentTime - processes[i].arrivalTime;
 
-        int completionTime = processes[i].startTime + processes[i].burstTime;
-        processes[i].turnAroundTime = completionTime - processes[i].arrivalTime;
+        processes[i].completionTime = processes[i].startTime + processes[i].burstTime;
+        processes[i].turnAroundTime = processes[i].completionTime - processes[i].arrivalTime;
 
         currentTime += processes[i].burstTime;
         totalWaitingTime += processes[i].waitingTime;
         totalResponseTime += processes[i].responseTime;
+        totalTurnAroundTime += processes[i].turnAroundTime;
     }
 
     cout << "\n------ FIFO Scheduling ------\n";
@@ -43,13 +45,12 @@ void firstComeFirstServed(vector<Process> &processes)
 
     for (const auto &p : processes)
     {
-        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << 
-        "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
+        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
     }
 
-    cout << endl;
     cout << "Average Waiting Time: " << totalWaitingTime / processes.size() << "\n";
     cout << "Average Response Time: " << totalResponseTime / processes.size() << "\n";
+    cout << "Average Turn Around Time: " << totalTurnAroundTime / processes.size() << "\n";
 }
 
 int main()
