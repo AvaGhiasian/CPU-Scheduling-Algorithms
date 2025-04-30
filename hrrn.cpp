@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -33,17 +34,20 @@ void highestResponseRatioNext(vector<Process> &processes)
                 int waitingTime = currentTime - processes[i].arrivalTime;
                 float responseRatio = (float)(waitingTime + processes[i].burstTime) / processes[i].burstTime;
 
-                if (responseRatio > highestRatio) {
+                if (responseRatio > highestRatio)
+                {
                     highestRatio = responseRatio;
                     index = i;
                 }
             }
         }
 
-        if(index == -1){
+        if (index == -1)
+        {
             currentTime++; // cpu is idle
         }
-        else{
+        else
+        {
             Process &p = processes[index];
             p.startTime = currentTime;
             p.responseTime = p.startTime - p.arrivalTime;
@@ -55,7 +59,7 @@ void highestResponseRatioNext(vector<Process> &processes)
             currentTime += p.burstTime;
             p.isCompleted = true;
             completed++;
-            
+
             totalWaitingTime += p.waitingTime;
             totalResponseTime += p.responseTime;
             totalTurnAroundTime += p.turnAroundTime;
@@ -64,7 +68,8 @@ void highestResponseRatioNext(vector<Process> &processes)
 
     cout << "\n------ Highest Response Ratio Next (HRRN) Scheduling ------\n";
     cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround\n";
-    for (const auto &p : processes) {
+    for (const auto &p : processes)
+    {
         cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t"
              << p.waitingTime << "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
     }
@@ -72,7 +77,6 @@ void highestResponseRatioNext(vector<Process> &processes)
     cout << "\nAverage Waiting Time: " << totalWaitingTime / processes.size() << "\n";
     cout << "Average Response Time: " << totalResponseTime / processes.size() << "\n";
     cout << "Average Turn Around Time: " << totalTurnAroundTime / processes.size() << "\n";
-
 }
 
 int main()
