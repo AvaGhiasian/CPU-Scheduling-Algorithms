@@ -1,10 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <climits>
 
 using namespace std;
-
-// response, waiting, turnaround works wrong
 
 struct Process
 {
@@ -19,7 +18,6 @@ struct Process
     int startTime = -1;
     bool isCompleted = false;
 };
-
 
 void shortestRemainingTime(vector<Process> &processes)
 {
@@ -37,7 +35,7 @@ void shortestRemainingTime(vector<Process> &processes)
         int index = -1;
         int minRemaining = INT_MAX;
 
-        // finds smallest cbt each time
+        // find the smallest cbt each time
         for (int i = 0; i < processes.size(); i++)
         {
             if (!processes[i].isCompleted && processes[i].arrivalTime <= currentTime && processes[i].remainingTime < minRemaining)
@@ -50,12 +48,15 @@ void shortestRemainingTime(vector<Process> &processes)
         if (index != -1)
         {
             Process &p = processes[index];
+
+            // set start time for the process when it first starts
             if (p.startTime == -1)
                 p.startTime = currentTime;
 
             p.remainingTime--;
             currentTime++;
 
+            // process is completed
             if (p.remainingTime == 0)
             {
                 p.completionTime = currentTime;
@@ -72,23 +73,21 @@ void shortestRemainingTime(vector<Process> &processes)
         }
         else
         {
-            currentTime++;  // cpu is idle 
+            currentTime++; // cpu is idle
         }
     }
 
     cout << "\n------ SRT (Preemptive SJF) Scheduling ------\n";
     cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround\n";
-    for (const auto &p : processes)
+    for (auto &p : processes)
     {
-        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << 
-        "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
+        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
     }
 
     cout << "Average Waiting Time: " << totalWaitingTime / processes.size() << "\n";
     cout << "Average Response Time: " << totalResponseTime / processes.size() << "\n";
     cout << "Average Turn Around Time: " << totalTurnAroundTime / processes.size() << "\n";
 }
-
 
 int main()
 {
