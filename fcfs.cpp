@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -16,8 +17,15 @@ struct Process
     int turnAroundTime; // completion time - arrival time
 };
 
+bool compareArrival(Process a, Process b)
+{
+    return a.arrivalTime < b.arrivalTime;
+}
+
 void firstComeFirstServed(vector<Process> &processes)
 {
+    sort(processes.begin(), processes.end(), compareArrival);
+
     int currentTime = 0;
     float totalWaitingTime = 0, totalResponseTime = 0, totalTurnAroundTime = 0;
 
