@@ -17,48 +17,59 @@ struct Process
     int turnAroundTime; // completion time - arrival time
 };
 
-bool compareArrival(Process a, Process b)
+vector<Process> sortByArrival(vector<Process> &processes)
 {
-    return a.arrivalTime < b.arrivalTime;
+    for (int i = 0; i < processes.size(); i++)
+    {
+        for (int j = i + 1; j < processes.size(); j++)
+        {
+            if (processes[j].arrivalTime < processes[i].arrivalTime)
+            {
+                Process temp = processes[j];
+                processes[j] = processes[i];
+                processes[i] = temp;
+            }
+        }
+    }
+
+    return processes;
 }
 
 void firstComeFirstServed(vector<Process> &processes)
 {
-    sort(processes.begin(), processes.end(), compareArrival);
+    processes = sortByArrival(processes);
 
     int currentTime = 0;
-    float totalWaitingTime = 0, totalResponseTime = 0, totalTurnAroundTime = 0;
+    float totalWaitingTime = 0, totalResponseTime = 0;
 
     for (int i = 0; i < processes.size(); i++)
     {
-        if (currentTime < processes[i].arrivalTime)
-        {
-            currentTime = processes[i].arrivalTime;
-        }
-        processes[i].startTime = currentTime;
-        processes[i].responseTime = currentTime - processes[i].arrivalTime;
-        processes[i].waitingTime = currentTime - processes[i].arrivalTime;
+        // if (currentTime < processes[i].arrivalTime)
+        // {
+        //     currentTime = processes[i].arrivalTime;
+        // }
 
-        processes[i].completionTime = processes[i].startTime + processes[i].burstTime;
-        processes[i].turnAroundTime = processes[i].completionTime - processes[i].arrivalTime;
+        processes[i].completionTime = currentTime + processes[i].burstTime;
+        cout << processes[i].completionTime << "*****";
+        processes[i].waitingTime = processes[i].completionTime - processes[i].arrivalTime - processes[i].burstTime;
+        processes[i].responseTime = processes[i].completionTime - processes[i].arrivalTime;
 
-        currentTime += processes[i].burstTime;
+        currentTime = processes[i].completionTime;
+
         totalWaitingTime += processes[i].waitingTime;
         totalResponseTime += processes[i].responseTime;
-        totalTurnAroundTime += processes[i].turnAroundTime;
     }
 
     cout << "\n------ FIFO Scheduling ------\n";
-    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround" << endl;
+    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse" << endl;
 
     for (const auto &p : processes)
     {
-        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
+        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t""\n";
     }
 
     cout << "Average Waiting Time: " << totalWaitingTime / processes.size() << "\n";
     cout << "Average Response Time: " << totalResponseTime / processes.size() << "\n";
-    cout << "Average Turn Around Time: " << totalTurnAroundTime / processes.size() << "\n";
 }
 
 int main()

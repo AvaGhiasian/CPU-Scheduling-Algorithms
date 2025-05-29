@@ -9,18 +9,37 @@ struct Process
     string name;
     int arrivalTime;
     int burstTime;
-    int startTime;
     int waitingTime;
+    int completionTime;
     int responseTime;
-    int turnAroundTime;
     bool isCompleted = false;
 };
 
-void shortestJobFirst(vector<Process>& processes)
+vector<Process> sortByCBT(vector<Process> &processes)
 {
+    for (int i = 0; i < processes.size(); i++)
+    {
+        for (int j = i + 1; j < processes.size(); j++)
+        {
+            if (processes[j].arrivalTime < processes[i].arrivalTime)
+            {
+                Process temp = processes[j];
+                processes[j] = processes[i];
+                processes[i] = temp;
+            }
+        }
+    }
+
+    return processes;
+}
+
+void shortestJobFirst(vector<Process> &processes)
+{
+    processes = sortByCBT(processes);
+
     int currentTime = 0;
     int completed = 0;
-    float totalWaitingTime = 0, totalResponseTime = 0, totalTurnAroundTime = 0;
+    float totalWaitingTime = 0, totalResponseTime = 0;
 
     while (completed < processes.size())
     {
@@ -42,37 +61,30 @@ void shortestJobFirst(vector<Process>& processes)
 
         if (index != -1)
         {
-            Process &p = processes[index];
-            p.startTime = currentTime;
-            p.responseTime = p.startTime - p.arrivalTime;
-            p.waitingTime = p.startTime - p.arrivalTime;
+            processes[index].completionTime = currentTime + processes[index].burstTime;
+            processes[index].waitingTime = processes[index].completionTime - processes[index].arrivalTime - processes[index].burstTime;
+            processes[index].responseTime = processes[index].completionTime - processes[index].arrivalTime;
 
-            int completionTime = p.startTime + p.burstTime;
-            p.turnAroundTime = completionTime - p.arrivalTime;
+            totalWaitingTime += processes[index].waitingTime;
+            totalResponseTime += processes[index].responseTime;
 
-            currentTime += p.burstTime;
-            p.isCompleted = true;
+            currentTime = processes[index].completionTime;
+            processes[index].isCompleted = true;
             completed++;
-            
-            totalWaitingTime += p.waitingTime;
-            totalResponseTime += p.responseTime;
-            totalTurnAroundTime += p.turnAroundTime;
         }
         else
-            currentTime++; // CPU idle
+            currentTime++; // CPU is idle
     }
 
     cout << "\n------ SJF (Non-Preemptive) Scheduling ------\n";
     cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround\n";
     for (const auto &p : processes)
     {
-        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << 
-        "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
+        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t\n";
     }
 
     cout << "Average Waiting Time: " << totalWaitingTime / processes.size() << "\n";
     cout << "Average Response Time: " << totalResponseTime / processes.size() << "\n";
-    cout << "Average Turn Around Time: " << totalTurnAroundTime / processes.size() << "\n";
 }
 
 int main()
