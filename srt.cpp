@@ -14,7 +14,6 @@ struct Process
     int completionTime;
     int waitingTime;
     int responseTime;
-    int turnAroundTime; // completion time - arrival time
     int startTime = -1;
     bool isCompleted = false;
 };
@@ -23,12 +22,7 @@ void shortestRemainingTime(vector<Process> &processes)
 {
     int currentTime = 0;
     int completed = 0;
-    float totalWaitingTime = 0, totalResponseTime = 0, totalTurnAroundTime = 0;
-
-    for (int i = 0; i < processes.size(); i++)
-    {
-        processes[i].remainingTime = processes[i].burstTime;
-    }
+    float totalWaitingTime = 0, totalResponseTime = 0;
 
     while (completed < processes.size())
     {
@@ -47,28 +41,26 @@ void shortestRemainingTime(vector<Process> &processes)
 
         if (index != -1)
         {
-            Process &p = processes[index];
+            if (processes[index].startTime == -1)
+            {
+                processes[index].startTime = currentTime;
+            }
 
-            // set start time for the process when it first starts
-            if (p.startTime == -1)
-                p.startTime = currentTime;
-
-            p.remainingTime--;
+            processes[index].remainingTime--;
             currentTime++;
 
-            // process is completed
-            if (p.remainingTime == 0)
+            if (processes[index].remainingTime == 0)
             {
-                p.completionTime = currentTime;
-                p.turnAroundTime = p.completionTime - p.arrivalTime;
-                p.waitingTime = p.turnAroundTime - p.burstTime;
-                p.responseTime = p.startTime - p.arrivalTime;
-                p.isCompleted = true;
+                processes[index].completionTime = currentTime;
+                processes[index].waitingTime = processes[index].completionTime - processes[index].arrivalTime - processes[index].burstTime;
+                processes[index].responseTime = processes[index].completionTime - processes[index].arrivalTime;
+
+                totalWaitingTime += processes[index].waitingTime;
+                totalResponseTime += processes[index].responseTime;
+
+                processes[index].isCompleted = true;
                 completed++;
 
-                totalWaitingTime += p.waitingTime;
-                totalResponseTime += p.responseTime;
-                totalTurnAroundTime += p.turnAroundTime;
             }
         }
         else
@@ -81,12 +73,11 @@ void shortestRemainingTime(vector<Process> &processes)
     cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround\n";
     for (auto &p : processes)
     {
-        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
+        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t\n";
     }
 
     cout << "Average Waiting Time: " << totalWaitingTime / processes.size() << "\n";
     cout << "Average Response Time: " << totalResponseTime / processes.size() << "\n";
-    cout << "Average Turn Around Time: " << totalTurnAroundTime / processes.size() << "\n";
 }
 
 int main()
@@ -112,6 +103,7 @@ int main()
         cin >> p.arrivalTime;
         cout << "Enter burst time of " << p.name << ": ";
         cin >> p.burstTime;
+        p.remainingTime = p.burstTime;
         processes.push_back(p);
     }
 
