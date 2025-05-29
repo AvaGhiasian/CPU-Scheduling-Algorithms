@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <climits>
+#include <string>
+#include <queue>
 
 using namespace std;
 
@@ -9,10 +10,14 @@ struct Process
     string name;
     int arrivalTime;
     int burstTime;
-    int waitingTime;
+    int remainingTime;
     int completionTime;
+    int waitingTime;
     int responseTime;
+    int turnAroundTime;
+    int startTime = -1;
     bool isCompleted = false;
+    bool isInQueue = false;
 };
 
 vector<Process> sortByArrival(vector<Process> &processes)
@@ -33,51 +38,53 @@ vector<Process> sortByArrival(vector<Process> &processes)
     return processes;
 }
 
-void shortestJobFirst(vector<Process> &processes)
+void roundRobin(vector<Process> &processes, int quantum)
 {
-    processes = sortByArrival(processes);
+    int currentTime = 0, completed = 0;
+    int remainingProcesses = processes.size();
 
-    int currentTime = 0;
-    int completed = 0;
     float totalWaitingTime = 0, totalResponseTime = 0;
 
-    while (completed < processes.size())
+    for (int i = 0; i < processes.size(); i = (i + 1) % processes.size()) // circular loop
     {
-        int minBurst = INT_MAX;
-        int index = -1;
-
-        // finding the shortest process, and saving its index for processing
-        for (int i = 0; i < processes.size(); i++)
+        if (processes[i].remainingTime > 0 && processes[i].arrivalTime <= currentTime)
         {
-            if (!processes[i].isCompleted && processes[i].arrivalTime <= currentTime)
+            if (processes[i].remainingTime == processes[i].burstTime)
             {
-                if (processes[i].burstTime < minBurst)
-                {
-                    minBurst = processes[i].burstTime;
-                    index = i;
-                }
+                processes[i].responseTime = currentTime;
+            }
+
+            if (processes[i].remainingTime <= quantum)
+            {
+                currentTime += processes[i].remainingTime;
+                processes[i].completionTime = currentTime;
+                processes[i].remainingTime = 0;
+                remainingProcesses--;
+            }
+            else
+            {
+                currentTime += quantum;
+                processes[i].remainingTime -= quantum;
             }
         }
 
-        if (index != -1)
+        if (remainingProcesses == 0)
         {
-            processes[index].completionTime = currentTime + processes[index].burstTime;
-            processes[index].waitingTime = processes[index].completionTime - processes[index].arrivalTime - processes[index].burstTime;
-            processes[index].responseTime = processes[index].completionTime - processes[index].arrivalTime;
-
-            totalWaitingTime += processes[index].waitingTime;
-            totalResponseTime += processes[index].responseTime;
-
-            currentTime = processes[index].completionTime;
-            processes[index].isCompleted = true;
-            completed++;
+            break;
         }
-        else
-            currentTime++; // CPU is idle
     }
 
-    cout << "\n------ SJF (Non-Preemptive) Scheduling ------\n";
-    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround\n";
+    for (auto &p : processes)
+    {
+        p.waitingTime = p.completionTime - p.arrivalTime - p.burstTime;
+        p.responseTime = p.completionTime - p.arrivalTime;
+
+        totalResponseTime += p.responseTime;
+        totalWaitingTime += p.waitingTime;
+    }
+
+    cout << "\n------ Round Robin Scheduling ------\n";
+    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\t\n";
     for (const auto &p : processes)
     {
         cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t\n";
@@ -89,7 +96,12 @@ void shortestJobFirst(vector<Process> &processes)
 
 int main()
 {
-    int n;
+    int n, quantum;
+    vector<Process> processes;
+
+    cout << "Enter quantum time (ms): ";
+    cin >> quantum;
+
     cout << "Enter number of processes: ";
     cin >> n;
 
@@ -98,8 +110,6 @@ int main()
     //     {"P2", 0, 4, 0, 0},
     //     {"P3", 0, 9, 0, 0},
     //     {"P4", 0, 5, 0, 0}};
-
-    vector<Process> processes;
 
     for (int i = 0; i < n; ++i)
     {
@@ -110,10 +120,11 @@ int main()
         cin >> p.arrivalTime;
         cout << "Enter burst time of " << p.name << ": ";
         cin >> p.burstTime;
+        p.remainingTime = p.burstTime;
         processes.push_back(p);
     }
 
-    shortestJobFirst(processes);
+    roundRobin(processes, quantum);
 
     return 0;
 }
