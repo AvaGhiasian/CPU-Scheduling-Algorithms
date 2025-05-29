@@ -13,26 +13,25 @@ struct Process
     int responseTime;
     int startTime;
     int completionTime;
-    int turnAroundTime; // completion time - arrival time
     bool isCompleted = false;
 };
 
 void highestResponseRatioNext(vector<Process> &processes)
 {
     int currentTime = 0, completed = 0;
-    float totalWaitingTime = 0, totalResponseTime = 0, totalTurnAroundTime = 0;
+    float totalWaitingTime = 0, totalResponseTime = 0;
 
     while (completed < processes.size())
     {
         int index = -1;
-        float highestRatio = -1.0;
+        double highestRatio = -1.0;
 
         for (int i = 0; i < processes.size(); i++)
         {
             if (!processes[i].isCompleted && processes[i].arrivalTime <= currentTime)
             {
                 int waitingTime = currentTime - processes[i].arrivalTime;
-                float responseRatio = (float)(waitingTime + processes[i].burstTime) / processes[i].burstTime;
+                double responseRatio = (waitingTime + processes[i].burstTime) / (double)processes[i].burstTime;
 
                 if (responseRatio > highestRatio)
                 {
@@ -48,35 +47,29 @@ void highestResponseRatioNext(vector<Process> &processes)
         }
         else
         {
-            Process &p = processes[index];
-            p.startTime = currentTime;
-            p.responseTime = p.startTime - p.arrivalTime;
-            p.waitingTime = p.startTime - p.arrivalTime;
+            processes[index].startTime = currentTime;
+            processes[index].completionTime = currentTime + processes[index].burstTime;
+            processes[index].waitingTime = processes[index].completionTime - processes[index].arrivalTime - processes[index].burstTime;
+            processes[index].responseTime = processes[index].completionTime - processes[index].arrivalTime;
 
-            p.completionTime = currentTime + p.burstTime;
-            p.turnAroundTime = p.completionTime - p.arrivalTime;
+            currentTime = processes[index].completionTime;
+            processes[index].isCompleted = true;
 
-            currentTime += p.burstTime;
-            p.isCompleted = true;
+            totalWaitingTime += processes[index].waitingTime;
+            totalResponseTime += processes[index].responseTime;
             completed++;
-
-            totalWaitingTime += p.waitingTime;
-            totalResponseTime += p.responseTime;
-            totalTurnAroundTime += p.turnAroundTime;
         }
     }
 
     cout << "\n------ Highest Response Ratio Next (HRRN) Scheduling ------\n";
-    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround\n";
+    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\n";
     for (const auto &p : processes)
     {
-        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t"
-             << p.waitingTime << "\t\t" << p.responseTime << "\t\t" << p.turnAroundTime << "\n";
+        cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t\n";
     }
 
-    cout << "\nAverage Waiting Time: " << totalWaitingTime / processes.size() << "\n";
+    cout << "Average Waiting Time: " << totalWaitingTime / processes.size() << "\n";
     cout << "Average Response Time: " << totalResponseTime / processes.size() << "\n";
-    cout << "Average Turn Around Time: " << totalTurnAroundTime / processes.size() << "\n";
 }
 
 int main()
