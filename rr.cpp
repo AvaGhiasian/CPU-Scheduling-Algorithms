@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <queue>
 
 using namespace std;
 
@@ -14,10 +13,8 @@ struct Process
     int completionTime;
     int waitingTime;
     int responseTime;
-    int turnAroundTime;
     int startTime = -1;
     bool isCompleted = false;
-    bool isInQueue = false;
 };
 
 vector<Process> sortByArrival(vector<Process> &processes)
