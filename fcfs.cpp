@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <algorithm>
 
 using namespace std;
 
@@ -14,7 +13,6 @@ struct Process
     int responseTime;
     int startTime;
     int completionTime;
-    int turnAroundTime; // completion time - arrival time
 };
 
 vector<Process> sortByArrival(vector<Process> &processes)
@@ -44,13 +42,12 @@ void firstComeFirstServed(vector<Process> &processes)
 
     for (int i = 0; i < processes.size(); i++)
     {
-        // if (currentTime < processes[i].arrivalTime)
-        // {
-        //     currentTime = processes[i].arrivalTime;
-        // }
+        if (currentTime < processes[i].arrivalTime)
+        {
+            currentTime = processes[i].arrivalTime;
+        }
 
         processes[i].completionTime = currentTime + processes[i].burstTime;
-        cout << processes[i].completionTime << "*****";
         processes[i].waitingTime = processes[i].completionTime - processes[i].arrivalTime - processes[i].burstTime;
         processes[i].responseTime = processes[i].completionTime - processes[i].arrivalTime;
 
