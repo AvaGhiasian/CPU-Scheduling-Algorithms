@@ -48,7 +48,7 @@ void roundRobin(vector<Process> &processes, int quantum)
         {
             if (processes[i].remainingTime == processes[i].burstTime)
             {
-                processes[i].responseTime = currentTime;
+                processes[i].startTime = currentTime;
             }
 
             if (processes[i].remainingTime <= quantum)
