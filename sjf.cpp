@@ -77,7 +77,7 @@ void shortestJobFirst(vector<Process> &processes)
     }
 
     cout << "\n------ SJF (Non-Preemptive) Scheduling ------\n";
-    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\tTurnaround\n";
+    cout << "Process\t\tArrival\t\tBurst\t\tWaiting\t\tResponse\n";
     for (const auto &p : processes)
     {
         cout << p.name << "\t\t" << p.arrivalTime << "\t\t" << p.burstTime << "\t\t" << p.waitingTime << "\t\t" << p.responseTime << "\t\t\n";
